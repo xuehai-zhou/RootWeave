@@ -1,12 +1,8 @@
 # RootWeave
 
-**Automated 3D root system architecture extraction and trait computation from CT scan point clouds.**
+**3D root system architecture segmentation, skeletonization, and trait computation tool.**
 
 RootWeave takes a 3D point cloud or volumetric image (`.ply`, `.nii.gz`) of a plant root system and automatically extracts the skeleton: the primary root (taproot) centerline and all detectable lateral root paths. From these skeletons, it computes a comprehensive set of root system architecture (RSA) traits including root length, branching angles, volume, and surface area.
-
-## Why RootWeave?
-
-Phenotyping root system architecture from 3D imaging (CT, MRI) is a bottleneck in plant science. Manual annotation is slow and subjective. Existing tools often work only on 2D projections or require clean binary segmentations. RootWeave operates directly on noisy 3D point clouds and produces per-root skeletal paths with quantitative trait measurements, enabling high-throughput root phenotyping.
 
 ## Method overview
 
@@ -38,13 +34,11 @@ run_pipeline.py             CLI entry point
 compute_traits.py           Trait computation from skeleton results
 interactive_viewer.py       3D interactive trait inspection tool
 visualize_result.py         Static result visualization
-debug_inspect_paths_v2.py   Developer tool: inspect individual paths
 
 samples/                    Input data (.nii.gz or .ply files)
 endpoints/                  Saved taproot endpoint selections (auto-generated)
 skl_res/                    Skeleton extraction results (.pkl)
 traits/                     Computed traits (.json and .txt)
-docs/                       Technical design documents
 ```
 
 ## Setup
