@@ -14,16 +14,8 @@ build/
 .idea/
 *.swp
 
-# Data (large files — users provide their own)
-samples/*.nii.gz
-samples/*.ply
-samples/*.xyz
-
-# Results (generated)
-skl_res/*.pkl
-traits/*.json
-traits/*.txt
-endpoints/*.json
+# Sample data and results are intentionally tracked (small example files
+# are useful for users to verify the pipeline works end-to-end)
 
 # Debug files
 debug_*.py

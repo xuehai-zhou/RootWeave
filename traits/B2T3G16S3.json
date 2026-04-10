@@ -1,0 +1,198 @@
+{
+  "sample": "B2T3G16S3",
+  "summary": {
+    "taproot_length_mm": 147.029,
+    "taproot_absolute_angle_deg": 15.41,
+    "taproot_volume_mm3": 99.0735,
+    "taproot_surface_area_mm2": 431.7345,
+    "taproot_mean_radius_mm": 0.4614,
+    "total_root_length_mm": 1497.295,
+    "total_root_volume_mm3": 935.1282,
+    "total_root_surface_area_mm2": 4224.9349,
+    "n_lateral_roots": 18,
+    "depth_mm": 118.95,
+    "width_mm": 162.2
+  },
+  "lateral_roots": [
+    {
+      "branch_id": 0,
+      "length_mm": 7.433,
+      "relative_angle_deg": 62.93,
+      "absolute_angle_deg": 73.82,
+      "volume_mm3": 4.73,
+      "surface_area_mm2": 22.8405,
+      "n_nodes": 8,
+      "mean_radius_mm": 0.4589
+    },
+    {
+      "branch_id": 1,
+      "length_mm": 111.37,
+      "relative_angle_deg": 39.38,
+      "absolute_angle_deg": 54.28,
+      "volume_mm3": 66.6753,
+      "surface_area_mm2": 305.0607,
+      "n_nodes": 96,
+      "mean_radius_mm": 0.4332
+    },
+    {
+      "branch_id": 2,
+      "length_mm": 40.646,
+      "relative_angle_deg": 30.44,
+      "absolute_angle_deg": 33.47,
+      "volume_mm3": 27.5159,
+      "surface_area_mm2": 119.9943,
+      "n_nodes": 36,
+      "mean_radius_mm": 0.4648
+    },
+    {
+      "branch_id": 3,
+      "length_mm": 76.473,
+      "relative_angle_deg": 77.13,
+      "absolute_angle_deg": 82.88,
+      "volume_mm3": 50.7489,
+      "surface_area_mm2": 222.8852,
+      "n_nodes": 62,
+      "mean_radius_mm": 0.4614
+    },
+    {
+      "branch_id": 4,
+      "length_mm": 60.325,
+      "relative_angle_deg": 32.99,
+      "absolute_angle_deg": 29.8,
+      "volume_mm3": 33.2,
+      "surface_area_mm2": 159.2777,
+      "n_nodes": 53,
+      "mean_radius_mm": 0.4173
+    },
+    {
+      "branch_id": 5,
+      "length_mm": 104.562,
+      "relative_angle_deg": 82.29,
+      "absolute_angle_deg": 67.86,
+      "volume_mm3": 66.294,
+      "surface_area_mm2": 294.5735,
+      "n_nodes": 90,
+      "mean_radius_mm": 0.4439
+    },
+    {
+      "branch_id": 6,
+      "length_mm": 95.712,
+      "relative_angle_deg": 71.62,
+      "absolute_angle_deg": 78.83,
+      "volume_mm3": 56.2813,
+      "surface_area_mm2": 263.4994,
+      "n_nodes": 81,
+      "mean_radius_mm": 0.4423
+    },
+    {
+      "branch_id": 7,
+      "length_mm": 121.159,
+      "relative_angle_deg": 52.14,
+      "absolute_angle_deg": 36.78,
+      "volume_mm3": 75.4539,
+      "surface_area_mm2": 338.6091,
+      "n_nodes": 102,
+      "mean_radius_mm": 0.4409
+    },
+    {
+      "branch_id": 8,
+      "length_mm": 115.79,
+      "relative_angle_deg": 50.5,
+      "absolute_angle_deg": 35.09,
+      "volume_mm3": 76.1299,
+      "surface_area_mm2": 343.4385,
+      "n_nodes": 101,
+      "mean_radius_mm": 0.4681
+    },
+    {
+      "branch_id": 9,
+      "length_mm": 109.8,
+      "relative_angle_deg": 68.91,
+      "absolute_angle_deg": 80.51,
+      "volume_mm3": 62.325,
+      "surface_area_mm2": 293.3185,
+      "n_nodes": 83,
+      "mean_radius_mm": 0.4209
+    },
+    {
+      "branch_id": 10,
+      "length_mm": 107.704,
+      "relative_angle_deg": 45.69,
+      "absolute_angle_deg": 53.12,
+      "volume_mm3": 67.7939,
+      "surface_area_mm2": 303.5795,
+      "n_nodes": 95,
+      "mean_radius_mm": 0.4434
+    },
+    {
+      "branch_id": 11,
+      "length_mm": 91.748,
+      "relative_angle_deg": 55.85,
+      "absolute_angle_deg": 70.49,
+      "volume_mm3": 58.8898,
+      "surface_area_mm2": 261.3657,
+      "n_nodes": 78,
+      "mean_radius_mm": 0.4504
+    },
+    {
+      "branch_id": 12,
+      "length_mm": 33.411,
+      "relative_angle_deg": 43.19,
+      "absolute_angle_deg": 31.55,
+      "volume_mm3": 17.1199,
+      "surface_area_mm2": 87.3868,
+      "n_nodes": 32,
+      "mean_radius_mm": 0.4184
+    },
+    {
+      "branch_id": 13,
+      "length_mm": 52.381,
+      "relative_angle_deg": 18.88,
+      "absolute_angle_deg": 33.95,
+      "volume_mm3": 34.6125,
+      "surface_area_mm2": 153.4764,
+      "n_nodes": 48,
+      "mean_radius_mm": 0.4623
+    },
+    {
+      "branch_id": 14,
+      "length_mm": 40.663,
+      "relative_angle_deg": 71.09,
+      "absolute_angle_deg": 61.74,
+      "volume_mm3": 25.4227,
+      "surface_area_mm2": 115.0576,
+      "n_nodes": 36,
+      "mean_radius_mm": 0.4432
+    },
+    {
+      "branch_id": 15,
+      "length_mm": 60.678,
+      "relative_angle_deg": 54.73,
+      "absolute_angle_deg": 55.02,
+      "volume_mm3": 39.2187,
+      "surface_area_mm2": 173.7718,
+      "n_nodes": 52,
+      "mean_radius_mm": 0.4503
+    },
+    {
+      "branch_id": 16,
+      "length_mm": 68.874,
+      "relative_angle_deg": 55.0,
+      "absolute_angle_deg": 70.17,
+      "volume_mm3": 42.7781,
+      "surface_area_mm2": 193.3366,
+      "n_nodes": 60,
+      "mean_radius_mm": 0.4423
+    },
+    {
+      "branch_id": 17,
+      "length_mm": 51.54,
+      "relative_angle_deg": 69.21,
+      "absolute_angle_deg": 66.27,
+      "volume_mm3": 30.865,
+      "surface_area_mm2": 141.7286,
+      "n_nodes": 43,
+      "mean_radius_mm": 0.4305
+    }
+  ]
+}
