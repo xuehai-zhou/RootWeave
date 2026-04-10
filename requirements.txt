@@ -1,0 +1,9 @@
+numpy
+scipy
+open3d
+networkx
+scikit-learn
+hdbscan
+nibabel
+matplotlib
+tqdm

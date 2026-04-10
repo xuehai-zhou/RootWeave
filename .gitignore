@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Data (large files — users provide their own)
+samples/*.nii.gz
+samples/*.ply
+samples/*.xyz
+
+# Results (generated)
+skl_res/*.pkl
+traits/*.json
+traits/*.txt
+endpoints/*.json
+
+# Debug files
+debug_*.py
+vvx.py
+vvs4*.py
+demo_*.py
+complete_labels*.py
+
+# Open3D camera settings
+DepthCamera_*.json
+
+# Temporary
+tmp*.p
+tmp*.ply
+*.p
+choosen/
