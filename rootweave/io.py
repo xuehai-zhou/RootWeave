@@ -168,28 +168,77 @@ def save_results(
     norm_params: NormParams,
     config: Optional[object] = None,
     taproot_path: Optional[np.ndarray] = None,
+    classified_branches: Optional[list] = None,
 ) -> None:
     """Save pipeline results in original (physical) coordinates.
 
     All point arrays are inverse-transformed before saving.
+
+    Saved pickle keys:
+      - ``all_points``            — (N, 3) full cloud
+      - ``main_root_points``      — (M, 3) taproot volume mask
+      - ``taproot_path``          — (P, 3) taproot centerline (order-1 root)
+      - ``branch_paths``          — raw phase-4 paths (pre-classification)
+      - ``classified_branches``   — post-classification flat list (NEW);
+        only present when classified_branches is provided.  Each entry is
+        a dict with keys: label, order, classification, parent_label,
+        path, attachment_point, attachment_index_on_parent,
+        absorbed_labels.  Use ``order`` and ``parent_label`` to reconstruct
+        the secondary/tertiary tree.
+      - ``config``                — the PipelineConfig used
+      - ``norm_params``           — normalization transform
+      - ``version``               — ``"rootweave/1.0.0"`` when classified_branches is present
     """
+    data = {
+        "all_points": norm_params.to_original(all_points),
+        "main_root_points": norm_params.to_original(main_root_points),
+        "taproot_path": norm_params.to_original(taproot_path) if taproot_path is not None else None,
+        "branch_paths": [
+            _denormalize_branch_path(bp, norm_params)
+            for bp in branch_paths
+        ],
+        "config": config,
+        "norm_params": norm_params,
+    }
+    if classified_branches is not None:
+        data["classified_branches"] = [
+            _denormalize_classified_branch(cb, norm_params)
+            for cb in classified_branches
+        ]
+        data["version"] = "rootweave/1.0.0"
     with open(path, "wb") as f:
-        pickle.dump(
-            {
-                "all_points": norm_params.to_original(all_points),
-                "main_root_points": norm_params.to_original(main_root_points),
-                "taproot_path": norm_params.to_original(taproot_path) if taproot_path is not None else None,
-                "branch_paths": [
-                    _denormalize_branch_path(bp, norm_params)
-                    for bp in branch_paths
-                ],
-                "config": config,
-                "norm_params": norm_params,
-            },
-            f,
-            protocol=pickle.HIGHEST_PROTOCOL,
-        )
-    print(f"Results saved to {path} (original scale)")
+        pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
+    n_cls = len(classified_branches) if classified_branches else 0
+    print(
+        f"Results saved to {path} (original scale) — "
+        f"{len(branch_paths)} raw branches, {n_cls} classified branches"
+    )
+
+
+def _denormalize_classified_branch(cb, norm_params: NormParams) -> dict:
+    """Convert a ClassifiedBranch (or equivalent dict) to a plain dict
+    with coordinates in original physical units.
+    """
+    def get(attr, default=None):
+        if hasattr(cb, attr):
+            return getattr(cb, attr)
+        return cb.get(attr, default)
+
+    path = [norm_params.to_original(np.asarray(p)) for p in get("path", [])]
+    attach = get("attachment_point")
+    if attach is not None:
+        attach = norm_params.to_original(np.asarray(attach))
+
+    return {
+        "label": get("label"),
+        "order": get("order"),
+        "classification": get("classification", "unknown"),
+        "parent_label": get("parent_label"),
+        "path": path,
+        "attachment_point": attach,
+        "attachment_index_on_parent": get("attachment_index_on_parent"),
+        "absorbed_labels": list(get("absorbed_labels", []) or []),
+    }
 
 
 def _denormalize_branch_path(bp, norm_params: NormParams):

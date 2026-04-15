@@ -5,6 +5,9 @@ __pycache__/
 dist/
 build/
 *.egg
+.venv/
+venv/
+env/
 
 # macOS
 .DS_Store
@@ -14,21 +17,18 @@ build/
 .idea/
 *.swp
 
-# Sample data and results are intentionally tracked (small example files
-# are useful for users to verify the pipeline works end-to-end)
-
-# Debug files
-debug_*.py
-vvx.py
-vvs4*.py
-demo_*.py
-complete_labels*.py
-
-# Open3D camera settings
+# Open3D cached view / render settings
 DepthCamera_*.json
+RenderOption_*.json
 
-# Temporary
-tmp*.p
-tmp*.ply
-*.p
-choosen/
+# Scratch
+tmp*
+*.tmp
+
+# Pipeline outputs are tracked selectively.  The shipped example
+# (samples/B2T3G16S3.nii.gz → skl_res/B2T3G16S3.pkl → traits/B2T3G16S3.{json,txt})
+# is committed so the README's quick-start works out of the box.  Any
+# additional sample you place under samples/ is safe to commit; the
+# corresponding skl_res/<name>.pkl and traits/<name>.{json,txt} that
+# your runs produce will appear here too — commit them or leave them
+# untracked, your choice.

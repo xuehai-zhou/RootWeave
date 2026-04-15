@@ -1,160 +1,177 @@
-# RootWeave
+# rootweave
 
-**3D root system architecture segmentation, skeletonization, and trait computation tool.**
+3D soybean root system skeletonization from point clouds — taproot centerline
+extraction, lateral-root tracking, and automatic
+secondary / tertiary classification in a single pass.
 
-RootWeave takes a 3D point cloud or volumetric image (`.ply`, `.nii.gz`) of a plant root system and automatically extracts the skeleton: the primary root (taproot) centerline and all detectable lateral root paths. From these skeletons, it computes a comprehensive set of root system architecture (RSA) traits including root length, branching angles, volume, and surface area.
+<!-- Add a rendered sample image here once one is ready, e.g.
+     ![rootweave pipeline](docs/example.png) -->
 
-## Method overview
+## What it does
 
-RootWeave processes a root system in four phases:
+Given a 3D point cloud of a plant root system (`.nii.gz`, `.ply`, or
+`.xyz`) and two user-picked endpoints on the taproot (root crown and
+root tip), **rootweave** produces:
 
-1. **Primary root path finding** -- The user selects two endpoints (root crown and tip). A density-weighted shortest path on a KNN graph traces the taproot centerline, followed by iterative cross-sectional centering to place the path at the geometric center of the root.
+1. A smoothed **taproot centerline** + per-position radius profile `R(t)`.
+2. A **binary mask** of the taproot volume inside the cloud.
+3. A set of **lateral-root seed points** located at the outermost tips of
+   each lateral, found by sweeping a shrinking tube around the taproot
+   polyline with KNN-graph-assisted classification.
+4. **Inward-tracked paths** from each seed to its parent structure.
+5. A **classified root tree** — each root tagged with its order
+   (secondary, tertiary, …) and an explicit `parent_label` link so
+   tertiaries know which secondary they branch from.
 
-2. **Main root volume extraction + branch detection** -- Cross-sectional planes sweep along the taproot to measure the local radius profile. A hollow cylinder shell is constructed around the taproot at a configurable distance. Point cloud clusters within this shell identify where lateral roots emerge.
-
-3. **Bidirectional lateral root tracing** -- From each detected branch origin, PCA-based tracking with adaptive step size grows the root path in both directions: inward (toward the taproot junction) and outward (toward the root tip). Cross-sectional cluster filtering prevents jumping between adjacent roots. Direction probing and graph-guided lookahead handle sharp bends. A neutral short exploration determines inward vs outward directions before committing to direction-specific search spaces.
-
-4. **Trait computation** -- Each root path is modeled as a sequence of frustum (truncated cone) segments for volume and surface area estimation. PCA of each path gives root orientation for angle measurements relative to the taproot and the vertical axis.
-
-## Project structure
-
-```
-rootweave/                    Core library
-  config.py                 All pipeline parameters (single source of truth)
-  io.py                     Data loading (.ply, .nii.gz), saving, endpoints
-  graph.py                  KNN graph construction, Dijkstra path finding
-  phase1_main_path.py       Taproot centerline extraction
-  phase2_analysis.py        Main root volume + cylinder-shell branch detection
-  phase3_branch_detection.py  BranchOrigin data structure
-  phase4_branch_growth.py   Bidirectional PCA tracking with graph assist
-  pipeline.py               Full pipeline orchestration
-  viz.py                    Open3D visualization helpers
-
-run_pipeline.py             CLI entry point
-compute_traits.py           Trait computation from skeleton results
-interactive_viewer.py       3D interactive trait inspection tool
-visualize_result.py         Static result visualization
-
-samples/                    Input data (.nii.gz or .ply files)
-endpoints/                  Saved taproot endpoint selections (auto-generated)
-skl_res/                    Skeleton extraction results (.pkl)
-traits/                     Computed traits (.json and .txt)
-```
-
-## Setup
-
-### Requirements
-
-- Python 3.9+
-- The following packages:
-
-```
-numpy
-scipy
-open3d
-networkx
-scikit-learn
-hdbscan
-nibabel
-matplotlib
-tqdm
-```
-
-### Installation
+## Install
 
 ```bash
-git clone https://github.com/your-username/RootWeave.git
-cd RootWeave
-
-# Create a conda environment (recommended)
-conda create -n rootweave python=3.10
-conda activate rootweave
-
-# Install dependencies
-pip install numpy scipy open3d networkx scikit-learn hdbscan nibabel matplotlib tqdm
+git clone https://github.com/<user>/rootweave.git
+cd rootweave
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-No additional environment variables are needed. All configuration is managed through `rootweave/config.py` and CLI arguments.
+Python 3.9+ is required. The dependencies (`numpy`, `scipy`,
+`scikit-learn`, `networkx`, `hdbscan`, `nibabel`, `open3d`, `matplotlib`)
+are all on PyPI.
 
-### Directory setup
+## Quick start
 
 ```bash
-mkdir -p samples endpoints skl_res traits
+# 1. Put a .nii.gz / .ply point cloud in ./samples/
+cp /path/to/my_root.nii.gz samples/
+
+# 2. Run the full pipeline
+python run_pipeline.py my_root
+# On the first run, an Open3D window opens for you to pick the taproot
+# crown and tip (Shift + left-click).  Endpoints are saved to
+# ./endpoints/my_root_endpoints.json and reused next time.
+
+# 3. Visualize the result
+python visualize_result.py skl_res/my_root.pkl
 ```
 
-Place your input files (`.nii.gz` or `.ply`) in `./samples/`.
+The pipeline writes a pickle at `skl_res/<name>.pkl` whose
+`classified_branches` field is the complete root-order tree.
 
-## Usage
+## Visualization modes
 
-### Run the full pipeline
+`visualize_result.py` supports four modes, selectable with `--mode`:
 
+| Mode | What's shown |
+|---|---|
+| `classified` (default) | Taproot + all secondaries (blue) + all tertiaries (green) with black links from tertiaries to their parents |
+| `secondary` | Focus on secondaries only, recolored in distinct categorical hues |
+| `tertiary`  | Focus on tertiaries only, recolored in distinct categorical hues |
+| `raw`       | Pre-classification view (every branch colored by label) |
+
+Try:
 ```bash
-# By sample name (auto-finds in ./samples/)
-python run_pipeline.py B2T3G16S3
-
-# With explicit path
-python run_pipeline.py samples/B2T3G16S3.nii.gz
-
-# Without visualization (headless mode)
-python run_pipeline.py B2T3G16S3 --no-viz
+python visualize_result.py skl_res/my_root.pkl --mode secondary
+python visualize_result.py skl_res/my_root.pkl --mode tertiary
+python visualize_result.py skl_res/my_root.pkl --no-cloud          # hide the full point cloud
+python visualize_result.py skl_res/my_root.pkl --point-size 2.0    # enlarge the cloud dots
 ```
 
-On the first run for a sample, an Open3D window opens for you to select the taproot endpoints (root crown and root tip) using `Shift + Left Click`. These are saved to `./endpoints/` and reused automatically on subsequent runs.
+## Pipeline overview (five phases)
 
-Results are saved to `./skl_res/<sample_name>.pkl`.
-
-### Compute traits
-
-```bash
-python compute_traits.py B2T3G16S3
+```
+Phase 1   phase1_main_path       — Dijkstra + iterative cross-sectional
+                                   centering → taproot centerline
+Phase 2   phase2_main_volume     — R(t) radius profile + main-root volume mask
+Phase 3   phase3_tip_seeds       — shrinking-tube sweep with KNN-graph
+                                   classification → one seed per lateral tip
+Phase 4   phase4_inward_tracking — PCA step, probe, graph-lookahead recovery;
+                                   tracks each seed inward to its parent
+Phase 5   phase5_classify_merge  — per-attachment analysis:
+                                      REDUNDANT, SPLIT-EXTENSION,
+                                      SIBLING-SECONDARY, or TERTIARY
 ```
 
-Outputs are saved to `./traits/` in both JSON and plain text table format.
+Every tunable parameter lives in [`rootweave/config.py`](rootweave/config.py)
+as a single `PipelineConfig` dataclass — the source comments document
+each field.
 
-### Visualize results
+## Programmatic API
+
+```python
+from rootweave import PipelineConfig, run
+
+config = PipelineConfig()
+# Override any parameter:
+# config.taproot_clearance_k = 2.5
+# config.graph_terminus_max_reached = 7
+
+result = run(
+    "samples/my_root.nii.gz",
+    config=config,
+    output_path="skl_res/my_root.pkl",
+    visualize=False,
+)
+
+# Inspect the root tree
+for cb in result["classified_branches"]:
+    parent = "taproot" if cb.parent_label is None else f"#{cb.parent_label}"
+    print(f"#{cb.label}  order={cb.order}  parent={parent}  "
+          f"classification={cb.classification}  "
+          f"n_nodes={len(cb.path)}")
+```
+
+## Output format
+
+Each entry in `result["classified_branches"]` (and in the saved pickle) is:
+
+```python
+{
+    "label": int,                            # unique id
+    "order": int,                            # 0=unknown, 2=secondary, 3=tertiary, ...
+    "classification": str,                   # taproot-direct | split-extension
+                                             # | sibling-secondary | tertiary | unknown
+    "parent_label": Optional[int],           # None = attached to taproot
+    "path": List[ndarray],                   # 3D points, tip → taproot (secondaries)
+                                             # or tip → attachment (tertiaries)
+    "attachment_point": Optional[ndarray],
+    "attachment_index_on_parent": Optional[int],
+    "absorbed_labels": List[int],            # labels folded in via SPLIT-EXTENSION
+}
+```
+
+Finding a tertiary's parent is a dict lookup:
+
+```python
+by_label = {cb["label"]: cb for cb in data["classified_branches"]}
+for cb in data["classified_branches"]:
+    if cb["order"] == 3:
+        parent = by_label[cb["parent_label"]]
+        # ...
+```
+
+## Trait extraction
+
+After a run, compute per-root and system-wide traits from the pickle:
 
 ```bash
-# Static skeleton view
-python visualize_result.py B2T3G16S3
+python compute_traits.py B2T3G16S3          # or skl_res/B2T3G16S3.pkl
+```
 
-# Interactive viewer with tube mesh and per-root trait display
+Traits are printed to the console and also written to
+`traits/<sample>.json` and `traits/<sample>.txt`. Per-root output is
+grouped by order (secondaries first, then tertiaries, …) and includes
+`length_mm`, `angle_to_taproot_deg`, `angle_to_parent_deg` (for
+tertiaries), `absolute_angle_deg`, frustum-model `volume_mm3` +
+`surface_area_mm2`, and `mean_radius_mm`.
+
+## Interactive per-root viewer
+
+```bash
 python interactive_viewer.py B2T3G16S3
 ```
 
-Interactive viewer controls:
-- **N / B** : Next / Previous root
-- **T** : Toggle tube mesh
-- **C** : Toggle point cloud
-- **D** : Deselect
-- **Q** : Quit
-
-### Configuration
-
-All parameters are centralized in `rootweave/config.py` as a `PipelineConfig` dataclass. Key parameters can also be overridden via CLI:
-
-```bash
-python run_pipeline.py B2T3G16S3 --shell-inner 5.0 --shell-outer 7.0 --step-k 5.0
-```
-
-### NIfTI spacing note
-
-For `.nii.gz` files, RootWeave overrides the affine with the correct voxel spacing `[0.39, 0.39, 0.2]` mm (hardcoded in `rootweave/io.py`). If your data has different spacing, update the `CORRECT_SPACING` constant in that file.
-
-## Computed traits
-
-| Trait | Description | Unit |
-|---|---|---|
-| Individual root length | Arc length along the skeleton path | mm |
-| Relative root angle | Angle between lateral root PCA and taproot PCA | degrees |
-| Absolute root angle | Angle between root PCA and the vertical (Z) axis | degrees |
-| Individual root volume | Frustum model from path + local cross-section radii | mm^3 |
-| Individual root surface area | Frustum lateral area + end caps | mm^2 |
-| Total root length | Sum of taproot + all lateral root lengths | mm |
-| Total root volume | Sum of all individual volumes | mm^3 |
-| Total root surface area | Sum of all individual surface areas | mm^2 |
-| Number of lateral roots | Count of detected and traced lateral roots | - |
-| Root system depth | Vertical (Z) extent of the point cloud | mm |
-| Root system width | Maximum horizontal (X or Y) extent | mm |
+Step through each root (`N` / `B`) and see its tube mesh + traits one
+at a time. Secondaries render in a blue family, tertiaries in a green
+family; tertiary attach points show as small black spheres on their
+parent's path.
 
 ## Citation
 
@@ -178,4 +195,4 @@ If you find RootWeave useful in your research, please consider citing the follow
 
 ## License
 
-MIT License
+MIT — see [LICENSE](LICENSE).
